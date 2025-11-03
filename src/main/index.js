@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { autoUpdater } from 'electron-updater'
 
 function createWindow() {
   // Create the browser window.
@@ -34,6 +35,46 @@ function createWindow() {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 }
+
+/** 🔁 Checks for updates */
+function checkForUpdates() {
+  console.log('🔍 Checking for updates...')
+  autoUpdater.checkForUpdatesAndNotify()
+}
+
+/** 🕒 Runs auto-update check every 10 minutes */
+function startAutoUpdateInterval() {
+  setInterval(() => {
+    checkForUpdates()
+  }, 10 * 60 * 1000) // 10 minutes
+}
+
+/** ⚡ Auto-Updater event handlers */
+
+// When an update is available
+autoUpdater.on('update-available', () => {
+  new Notification({
+    title: 'Update Available',
+    body: 'A new version is being downloaded in the background.',
+  }).show()
+})
+
+// When an update has been downloaded
+autoUpdater.on('update-downloaded', () => {
+  dialog
+    .showMessageBox({
+      type: 'info',
+      title: 'Update Ready',
+      message: 'A new version has been downloaded. Restart to apply it?',
+      buttons: ['Restart', 'Later'],
+    })
+    .then((result) => {
+      if (result.response === 0) {
+        autoUpdater.quitAndInstall()
+      }
+    })
+})
+
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
