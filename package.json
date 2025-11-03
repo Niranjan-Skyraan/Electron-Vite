@@ -10,7 +10,7 @@
     "lint": "eslint --cache .",
     "start": "electron-vite preview",
     "dev": "electron-vite dev",
-    "build": "electron-builder build --win --publish always",
+    "build": "setx GH_TOKEN $(grep GH_TOKEN .env | cut -d '=' -f2) && electron-builder build --win --publish always",
     "dist":"npx -r dotenv/config electron-builder --publish always",
     "postinstall": "electron-builder install-app-deps",
     "build:unpack": "npm run build && electron-builder --dir",
